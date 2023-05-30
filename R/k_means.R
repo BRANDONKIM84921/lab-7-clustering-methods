@@ -5,7 +5,7 @@
 #'
 #' @param PCA Boolean value whether you want pca
 #'
-#' @return list with cluster assignments and sum of squares for each cluster
+#' @return list with cluster means, cluster assignments and sum of squares for each cluster
 k_means <- function(df, k, PCA = F) {
 
     clust_ind <- sample(k, 1:nrow(df))
@@ -33,5 +33,14 @@ k_means <- function(df, k, PCA = F) {
         new_clusters <- as.list(as.data.frame(t(df_center[,-1])))
     }
 
-    results <- list(cluster_means = new_clusters, clustering_vector = df_assign$cluster)
+    ss <- rep(0, k)
+
+    for (i in 1:length(df)) {
+        ss[df_assign$cluster[i]] <-
+            ss[df_assign$cluster[i]] + sqrt(sum((as.numeric(df[i,]) - clustering_means[i]) ^ 2))
+    }
+
+    return(list(cluster_means = new_clusters,
+                clustering_vector = df_assign$cluster,
+                sum_of_squares = ss))
 }

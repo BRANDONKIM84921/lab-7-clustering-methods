@@ -3,13 +3,21 @@
 #' @param dat A dataframe
 #' @param k Number of clusters
 #'
-#' @return A data frame of cluster assignments (merge and order?)
+#' @return A vector of cluster assignments
 #'
 #' @import dplyr
 #' @importFrom reshape2 melt
 #'
 #' @export
 hier_clust <- function(data, k) {
+
+    # check if value of k is valid
+    if(!is.numeric(k)){
+        stop("The value of k must be a number")
+    }
+    if((k < 1) || (k > nrow(data))){
+        stop("Please choose a valid number of clusters")
+    }
 
     # clean data
     data <- data |>
@@ -48,14 +56,14 @@ hier_clust <- function(data, k) {
         cluster_indices <- which(clusters == max_cluster)
         clusters[cluster_indices] <- min_cluster
 
-        # Update distance matrix
+        # update distance matrix using minimum distance
         dist[as.character(min_cluster), ] <- pmin(dist[as.character(min_cluster), ], dist[as.character(max_cluster), ])
         dist[, as.character(min_cluster)] <- pmin(dist[, as.character(min_cluster)], dist[, as.character(max_cluster)])
         dist <- dist[rownames(dist) != as.character(max_cluster), colnames(dist) != as.character(max_cluster)]
 
     }
 
-    # return the cluster assignments
+    # return the cluster assignments as a vector
     return(clusters)
 
 }

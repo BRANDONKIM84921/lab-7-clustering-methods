@@ -2,6 +2,7 @@
 
 export("%>%")
 export(hier_clust)
+export(k_means)
 import(dplyr)
 importFrom(magrittr,"%>%")
 importFrom(reshape2,melt)

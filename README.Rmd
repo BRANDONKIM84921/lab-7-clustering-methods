@@ -32,6 +32,7 @@ install.packages("clust431")
 
 ```{r load package}
 library(clust431)
+library(tidyverse) # <- for examples
 ```
 
 ## K-Means Example
@@ -39,8 +40,40 @@ library(clust431)
 This is a basic example which shows you how to use the k_means() function to obtain cluster assignments for a data set. 
 
 ```{r}
-1+1
+set.seed(20)
+iris_km <- iris %>%
+    select(Petal.Length, Petal.Width) %>%
+    k_means(k = 3)
+iris_km
 ```
+
+In this example, we performed k means clustering on the Iris dataset, using petal length and width. The function output gives us a vector of each group that the flowers are in, the sum of squares for each group, and the centroids of each group. Since we specified k = 3, we can see that it made 3 clusters.
+
+We will see how accurately our k_means algorithm clustered the species together
+
+```{r}
+iris %>%
+    mutate(cluster = as.character(iris_km$clustering_vector)) %>%
+    ggplot(aes(x = Petal.Length, y = Petal.Width, color = cluster)) +
+    geom_point()
+```
+
+```{r}
+iris %>%
+    ggplot(aes(x = Petal.Length, y = Petal.Width, color = Species)) +
+    geom_point()
+```
+
+As you can see, it was able to predict the species pretty well. 
+
+We can also apply PCA to the same data as well, and use all the variables. 
+
+```{r}
+iris %>%
+    select(-Species) %>%
+    k_means(k = 3, PCA = T)
+```
+
 
 ## Hierarchical Clustering Example
 

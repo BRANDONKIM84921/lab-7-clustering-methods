@@ -44,9 +44,13 @@ k_means <- function(df, k, PCA = F) {
     for (i in 1:nrow(df)) {
         ss[df_clusters$cluster[i]] <-
             ss[df_clusters$cluster[i]] + sum((as.numeric(df[i,]) - clusters[[df_clusters$cluster[i]]]) ^ 2)
+
     }
 
     return(list(cluster_means = unname(clusters),
                 clustering_vector = df_clusters$cluster,
                 sum_of_squares = ss))
 }
+
+
+

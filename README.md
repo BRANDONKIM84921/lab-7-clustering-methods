@@ -23,6 +23,17 @@ install.packages("clust431")
 
 ``` r
 library(clust431)
+library(tidyverse) # <- for examples
+#> ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+#> ✔ dplyr     1.1.1     ✔ readr     2.1.4
+#> ✔ forcats   1.0.0     ✔ stringr   1.5.0
+#> ✔ ggplot2   3.4.2     ✔ tibble    3.2.1
+#> ✔ lubridate 1.9.2     ✔ tidyr     1.3.0
+#> ✔ purrr     1.0.1     
+#> ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+#> ✖ dplyr::filter() masks stats::filter()
+#> ✖ dplyr::lag()    masks stats::lag()
+#> ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
 ```
 
 ## K-Means Example
@@ -31,8 +42,86 @@ This is a basic example which shows you how to use the k_means()
 function to obtain cluster assignments for a data set.
 
 ``` r
-1+1
-#> [1] 2
+set.seed(20)
+iris_km <- iris %>%
+    select(Petal.Length, Petal.Width) %>%
+    k_means(k = 3)
+iris_km
+#> $cluster_means
+#>   Petal.Length Petal.Width
+#> 1     1.462000    0.246000
+#> 2     4.292593    1.359259
+#> 3     5.626087    2.047826
+#> 
+#> $clustering_vector
+#>   [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+#>  [38] 1 1 1 1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+#>  [75] 2 2 2 3 2 2 2 2 2 3 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 3 3 3 3 3 3 2 3 3 3 3
+#> [112] 3 3 3 3 3 3 3 3 2 3 3 3 2 3 3 2 2 3 3 3 3 3 3 3 3 3 3 2 3 3 3 3 3 3 3 3 3
+#> [149] 3 3
+#> 
+#> $sum_of_squares
+#> [1]  2.02200 14.22741 15.16348
+```
+
+In this example, we performed k means clustering on the Iris dataset,
+using petal length and width. The function output gives us a vector of
+each group that the flowers are in, the sum of squares for each group,
+and the centroids of each group. Since we specified k = 3, we can see
+that it made 3 clusters.
+
+We will see how accurately our k_means algorithm clustered the species
+together
+
+``` r
+iris %>%
+    mutate(cluster = as.character(iris_km$clustering_vector)) %>%
+    ggplot(aes(x = Petal.Length, y = Petal.Width, color = cluster)) +
+    geom_point()
+```
+
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+
+``` r
+iris %>%
+    ggplot(aes(x = Petal.Length, y = Petal.Width, color = Species)) +
+    geom_point()
+```
+
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
+
+As you can see, it was able to predict the species pretty well.
+
+We can also apply PCA to the same data as well, and use all the
+variables.
+
+``` r
+iris %>%
+    select(-Species) %>%
+    k_means(k = 3, PCA = T)
+#> Warning: `as_data_frame()` was deprecated in tibble 2.0.0.
+#> ℹ Please use `as_tibble()` (with slightly different semantics) to convert to a
+#>   tibble, or `as.data.frame()` to convert to a data frame.
+#> ℹ The deprecated feature was likely used in the clust431 package.
+#>   Please report the issue to the authors.
+#> This warning is displayed once every 8 hours.
+#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+#> generated.
+#> $cluster_means
+#>      Comp.1      Comp.2
+#> 1  1.406133 -0.05734426
+#> 2 -2.395725 -0.41647304
+#> 3 -2.571337  0.45835798
+#> 
+#> $clustering_vector
+#>   [1] 3 2 2 2 3 3 2 3 2 2 3 3 2 2 3 3 3 3 3 3 3 3 3 3 2 2 3 3 3 2 2 3 3 3 2 3 3
+#>  [38] 3 2 3 3 2 2 3 3 2 3 2 3 3 1 1 1 1 1 1 1 2 1 1 2 1 1 1 1 1 1 1 1 1 1 1 1 1
+#>  [75] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 1 1 1 1 2 1 1 1 1 1 1 1 1 1 1 1 1
+#> [112] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+#> [149] 1 1
+#> 
+#> $sum_of_squares
+#> [1] 105.683170  17.221058   4.749377
 ```
 
 ## Hierarchical Clustering Example

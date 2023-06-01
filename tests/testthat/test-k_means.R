@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Test case 1: Check if the function returns the correct number of clusters
 test_that("The function returns the correct number of clusters", {
     # Create a sample dataframe
@@ -39,4 +40,20 @@ test_that("The function returns the correct sum of squares for each cluster", {
 
     # Check if the sum of squares is equal to the expected value
     expect_equal(result$sum_of_squares, expected_ss)
+=======
+test_that("simple case", {
+    set.seed(101)
+
+    test <- data.frame(x = c(19, 8, 13, 52, 2, 13, 15), y = c(1, 13, 12, 43, 1, 2, 17))
+
+    expected <- kmeans(test, 2)
+
+    actual <- k_means(test, 2)
+
+    expect_equal(actual$clustering_vector, expected$cluster)
+
+    expect_equal(actual$cluster_means, as.data.frame(expected$centers))
+
+    expect_equal(actual$sum_of_squares, expected$withinss)
+>>>>>>> f0935103a94d54291fda554eee2cfb524e84e58e
 })

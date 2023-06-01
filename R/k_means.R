@@ -5,8 +5,26 @@
 #'
 #' @param PCA Boolean value whether you want pca
 #'
+#' @import dplyr
+#'
 #' @return list with cluster means, cluster assignments and sum of squares for each cluster
 k_means <- function(df, k, PCA = F) {
+
+    if(!is.numeric(k)){
+        stop("The value of k must be a number")
+    }
+    if((k < 1) || (k > nrow(df))){
+        stop("Please choose a valid number of clusters")
+    }
+
+    if (PCA) {
+        df_pca <- df %>%
+            princomp()
+
+        df <- df_pca$scores %>%
+            as_data_frame() %>%
+            select(Comp.1, Comp.2)
+    }
 
     clust_ind <- sample(1:nrow(df), k)
     clusters <- list()
@@ -47,7 +65,11 @@ k_means <- function(df, k, PCA = F) {
 
     }
 
-    return(list(cluster_means = unname(clusters),
+    cluster_means <- data.frame(t(sapply(clusters,c)))
+    names(cluster_means) <- names(df)
+    rownames(cluster_means) <- as.character(c(1:k))
+
+    return(list(cluster_means = cluster_means,
                 clustering_vector = df_clusters$cluster,
                 sum_of_squares = ss))
 }

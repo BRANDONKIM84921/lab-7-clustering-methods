@@ -1,5 +1,7 @@
 ---
 output: github_document
+title: "Lab 7"
+author: "Aiden Kelly, Brandon Kim, Sam Todd"
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -18,37 +20,79 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of clust431 is to ...
+The goal of clust431 is to provide functions that implement a k-means algorithm and perform agglomerative hierarchical clustering. 
 
 ## Installation
 
 You can install the released version of clust431 from [CRAN](https://CRAN.R-project.org) with:
 
-``` r
+```{r install package, eval=FALSE}
 install.packages("clust431")
 ```
 
-## Example
-
-This is a basic example which shows you how to solve a common problem:
-
-```{r example}
+```{r load package}
 library(clust431)
-## basic example code
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+## K-Means Example
 
-```{r cars}
-summary(cars)
+This is a basic example which shows you how to use the k_means() function to obtain cluster assignments for a data set. 
+
+```{r}
+1+1
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date.
+## Hierarchical Clustering Example
 
-You can also embed plots, for example:
+This is a basic example which shows you how to use the hier_clust() function to obtain cluster assignments for a data set. 
 
-```{r pressure, echo = FALSE}
-plot(pressure)
+```{r}
+# first 10 observations from the iris dataset
+data <- iris |> 
+    head(10)
+
+# remove the categorical variable
+# NOTE: the function will automatically select only numeric variables anyway 
+data <- subset(data, select = -Species)
+
+# perform hierarchical clustering
+iris_hc <- hier_clust(data, 3)
+
+# output the cluster assignments
+iris_hc
 ```
 
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub!
+In this example, we perform hierarchical clustering on the first 10 observations from the iris dataset. The function output gives us the cluster assignments for the data we provided. From the output we can see that the function successfully grouped the data into clusters as we supplied k=3 to the function.
+
+```{r}
+# save a copy without cluster assignments
+data2 <- data
+
+# add a new row with the cluster assignments to the original dataset
+data$cluster <- iris_hc
+
+# show the new dataset
+data
+```
+
+If we attach the cluster assignments to the original dataset, we can see that the assignments make sense. Observation 6 is the only observation in its own cluster. Since it has the largest value for every variable in the dataset, it make sense that it did find another cluster or observation that was similar to it. 
+
+```{r}
+# calculate the distance matrix
+iris_dist <- dist(data2)
+
+# output matrix
+iris_dist
+```
+
+Looking at the distance matrix above, the smallest distance is 0.1414 between observations 1 and 5. We can confirm this by asking hier_clust to only perform the first iteration of clustering and seeing if those two observations are put into the same cluster.
+
+```{r}
+# perform only 1 iteration of hier_clust()
+iris_hc_2 <- hier_clust(data2, nrow(data2)-1)
+
+# output the cluster assignments
+iris_hc_2
+```
+
+As we can see from the hier_clust() output, the 1st and 5th observation were put in the same cluster after only one iteration. Therefore, the function is working as expected.
